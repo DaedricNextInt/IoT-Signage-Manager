@@ -1,0 +1,274 @@
+// Prisma Schema for IoT Device Manager
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USER & AUTH
+// ============================================
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  password          String
+  name              String?
+  role              Role      @default(USER)
+  isActive          Boolean   @default(true)
+  lastLogin         DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  acknowledgedAlerts Alert[]  @relation("AcknowledgedBy")
+
+  @@map("users")
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+// ============================================
+// DEVICES
+// ============================================
+model Device {
+  id               String       @id @default(uuid())
+  deviceId         String       @unique  // External device identifier
+  name             String
+  description      String?
+  status           DeviceStatus @default(PENDING)
+  
+  // Hardware info
+  model            String?
+  serialNumber     String?
+  firmwareVersion  String?
+  androidVersion   String?
+  screenResolution String?
+  
+  // Network
+  ipAddress        String?
+  macAddress       String?
+  
+  // Timestamps
+  lastSeen         DateTime?
+  lastHeartbeat    DateTime?
+  
+  // Location
+  locationName     String?
+  locationFloor    String?
+  locationBuilding String?
+  
+  // Metadata
+  tags             String[]     @default([])
+  settings         Json         @default("{}")
+  
+  // Relations
+  groupId          String?
+  group            DeviceGroup? @relation(fields: [groupId], references: [id])
+  
+  metrics          DeviceMetric[]
+  logs             DeviceLog[]
+  events           DeviceEvent[]
+  alerts           Alert[]
+  commands         DeviceCommand[]
+  screenshots      Screenshot[]
+  
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@index([status])
+  @@index([groupId])
+  @@map("devices")
+}
+
+enum DeviceStatus {
+  ONLINE
+  OFFLINE
+  ERROR
+  PENDING
+  REBOOTING
+}
+
+// ============================================
+// DEVICE GROUPS
+// ============================================
+model DeviceGroup {
+  id          String        @id @default(uuid())
+  name        String
+  description String?
+  
+  parentId    String?
+  parent      DeviceGroup?  @relation("GroupHierarchy", fields: [parentId], references: [id])
+  children    DeviceGroup[] @relation("GroupHierarchy")
+  
+  devices     Device[]
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("device_groups")
+}
+
+// ============================================
+// METRICS
+// ============================================
+model DeviceMetric {
+  id               String   @id @default(uuid())
+  deviceId         String
+  device           Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  
+  cpuUsage         Float?
+  memoryUsage      Float?
+  memoryTotal      BigInt?
+  memoryAvailable  BigInt?
+  storageUsage     Float?
+  storageTotal     BigInt?
+  storageAvailable BigInt?
+  cpuTemperature   Float?
+  networkType      String?
+  signalStrength   Int?
+  displayOn        Boolean?
+  brightness       Int?
+  batteryLevel     Int?
+  batteryCharging  Boolean?
+  
+  recordedAt       DateTime @default(now())
+
+  @@index([deviceId, recordedAt])
+  @@map("device_metrics")
+}
+
+// ============================================
+// LOGS
+// ============================================
+model DeviceLog {
+  id        String   @id @default(uuid())
+  deviceId  String
+  device    Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  
+  level     LogLevel
+  message   String
+  source    String?
+  metadata  Json     @default("{}")
+  
+  createdAt DateTime @default(now())
+
+  @@index([deviceId, createdAt])
+  @@index([level])
+  @@map("device_logs")
+}
+
+enum LogLevel {
+  DEBUG
+  INFO
+  WARNING
+  ERROR
+  CRITICAL
+}
+
+// ============================================
+// EVENTS
+// ============================================
+model DeviceEvent {
+  id        String        @id @default(uuid())
+  deviceId  String
+  device    Device        @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  
+  eventType String
+  eventData Json          @default("{}")
+  severity  AlertSeverity @default(INFO)
+  
+  createdAt DateTime      @default(now())
+
+  @@index([deviceId, createdAt])
+  @@map("device_events")
+}
+
+// ============================================
+// ALERTS
+// ============================================
+model Alert {
+  id             String        @id @default(uuid())
+  deviceId       String?
+  device         Device?       @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  
+  alertType      String
+  message        String
+  severity       AlertSeverity @default(WARNING)
+  
+  isAcknowledged Boolean       @default(false)
+  acknowledgedById String?
+  acknowledgedBy User?         @relation("AcknowledgedBy", fields: [acknowledgedById], references: [id])
+  acknowledgedAt DateTime?
+  
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([deviceId])
+  @@index([isAcknowledged])
+  @@index([severity])
+  @@map("alerts")
+}
+
+enum AlertSeverity {
+  INFO
+  WARNING
+  ERROR
+  CRITICAL
+}
+
+// ============================================
+// COMMANDS
+// ============================================
+model DeviceCommand {
+  id            String        @id @default(uuid())
+  deviceId      String
+  device        Device        @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  
+  command       String
+  payload       Json          @default("{}")
+  status        CommandStatus @default(PENDING)
+  
+  sentAt        DateTime?
+  acknowledgedAt DateTime?
+  completedAt   DateTime?
+  response      Json?
+  errorMessage  String?
+  
+  createdAt     DateTime      @default(now())
+
+  @@index([deviceId, createdAt])
+  @@map("device_commands")
+}
+
+enum CommandStatus {
+  PENDING
+  SENT
+  ACKNOWLEDGED
+  COMPLETED
+  FAILED
+}
+
+// ============================================
+// SCREENSHOTS
+// ============================================
+model Screenshot {
+  id        String   @id @default(uuid())
+  deviceId  String
+  device    Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  
+  filePath  String
+  fileSize  Int
+  width     Int?
+  height    Int?
+  
+  createdAt DateTime @default(now())
+
+  @@index([deviceId, createdAt])
+  @@map("screenshots")
+}
