@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # --- Database & Cache ---
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER:-iot_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-iot_password}
+      POSTGRES_DB: iot_devices
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-iot_user} -d iot_devices"]
+      interval: 10s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - mosquitto_data:/mosquitto/data
+      # Create a default config if you don't have the infrastructure folder
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  # --- Application ---
+  backend:
+    build: ./backend
+    restart: always
+    environment:
+      PORT: 4000
+      DATABASE_URL: postgres://${DB_USER:-iot_user}:${DB_PASSWORD:-iot_password}@postgres:5432/iot_devices
+      REDIS_URL: redis://redis:6379
+      MQTT_BROKER_URL: mqtt://mosquitto:1883
+      JWT_SECRET: ${JWT_SECRET:-change_this_secret}
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    restart: always
+    ports:
+      - "80:80" # Access UI via http://<LXC-IP>
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  redis_data:
+  mosquitto_data:
