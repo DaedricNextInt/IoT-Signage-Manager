@@ -5,15 +5,17 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
+
+# Install ALL dependencies (including dev)
+RUN npm install
+
+# Copy prisma schema
 COPY prisma ./prisma/
 
-# Install dependencies
-RUN npm ci
-
-# Generate Prisma client
+# Generate Prisma client (doesn't need DB connection)
 RUN npx prisma generate
 
-# Copy source
+# Copy source code
 COPY . .
 
 # Build TypeScript
@@ -24,11 +26,16 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy built files
+# Copy package files and install production deps only
+COPY package*.json ./
+RUN npm install --omit=dev
+
+# Copy prisma schema and generate client in production stage
+COPY prisma ./prisma/
+RUN npx prisma generate
+
+# Copy built files from builder
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/prisma ./prisma
 
 # Expose port
 EXPOSE 4000

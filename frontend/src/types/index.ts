@@ -1,4 +1,3 @@
-// Device types
 export type DeviceStatus = 'ONLINE' | 'OFFLINE' | 'ERROR' | 'PENDING' | 'REBOOTING';
 
 export interface Device {
@@ -22,18 +21,14 @@ export interface Device {
   group?: DeviceGroup;
   createdAt: string;
   updatedAt: string;
-  _count?: {
-    alerts?: number;
-  };
+  _count?: { alerts?: number };
 }
 
 export interface DeviceGroup {
   id: string;
   name: string;
   description?: string;
-  _count?: {
-    devices?: number;
-  };
+  _count?: { devices?: number };
 }
 
 export interface DeviceMetric {
@@ -55,7 +50,6 @@ export interface DeviceLog {
   createdAt: string;
 }
 
-// Alert types
 export type AlertSeverity = 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL';
 
 export interface Alert {
@@ -70,7 +64,6 @@ export interface Alert {
   createdAt: string;
 }
 
-// User types
 export interface User {
   id: string;
   email: string;

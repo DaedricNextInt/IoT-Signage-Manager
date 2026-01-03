@@ -6,9 +6,7 @@ export function formatRelativeTime(date: string | Date | undefined | null): stri
     const dateObj = typeof date === 'string' ? parseISO(date) : date;
     if (!isValid(dateObj)) return 'Invalid date';
     return formatDistanceToNow(dateObj, { addSuffix: true });
-  } catch {
-    return 'Invalid date';
-  }
+  } catch { return 'Invalid date'; }
 }
 
 export function formatDateTime(date: string | Date | undefined | null): string {
@@ -17,9 +15,7 @@ export function formatDateTime(date: string | Date | undefined | null): string {
     const dateObj = typeof date === 'string' ? parseISO(date) : date;
     if (!isValid(dateObj)) return 'Invalid date';
     return format(dateObj, 'MMM d, yyyy h:mm a');
-  } catch {
-    return 'Invalid date';
-  }
+  } catch { return 'Invalid date'; }
 }
 
 export function formatBytes(bytes: number | undefined | null, decimals: number = 2): string {
@@ -40,43 +36,21 @@ export function cn(...classes: (string | undefined | null | false)[]): string {
 }
 
 export function getStatusColor(status: string): string {
-  const colors: Record<string, string> = {
-    ONLINE: 'text-green-600',
-    OFFLINE: 'text-gray-500',
-    ERROR: 'text-red-600',
-    PENDING: 'text-yellow-600',
-    REBOOTING: 'text-blue-600',
-  };
+  const colors: Record<string, string> = { ONLINE: 'text-green-600', OFFLINE: 'text-gray-500', ERROR: 'text-red-600', PENDING: 'text-yellow-600', REBOOTING: 'text-blue-600' };
   return colors[status] || 'text-gray-500';
 }
 
 export function getStatusBgColor(status: string): string {
-  const colors: Record<string, string> = {
-    ONLINE: 'bg-green-100',
-    OFFLINE: 'bg-gray-100',
-    ERROR: 'bg-red-100',
-    PENDING: 'bg-yellow-100',
-    REBOOTING: 'bg-blue-100',
-  };
+  const colors: Record<string, string> = { ONLINE: 'bg-green-100', OFFLINE: 'bg-gray-100', ERROR: 'bg-red-100', PENDING: 'bg-yellow-100', REBOOTING: 'bg-blue-100' };
   return colors[status] || 'bg-gray-100';
 }
 
 export function getSeverityColor(severity: string): string {
-  const colors: Record<string, string> = {
-    INFO: 'text-blue-600',
-    WARNING: 'text-yellow-600',
-    ERROR: 'text-red-500',
-    CRITICAL: 'text-red-700',
-  };
+  const colors: Record<string, string> = { INFO: 'text-blue-600', WARNING: 'text-yellow-600', ERROR: 'text-red-500', CRITICAL: 'text-red-700' };
   return colors[severity] || 'text-gray-500';
 }
 
 export function getSeverityBgColor(severity: string): string {
-  const colors: Record<string, string> = {
-    INFO: 'bg-blue-100',
-    WARNING: 'bg-yellow-100',
-    ERROR: 'bg-red-100',
-    CRITICAL: 'bg-red-200',
-  };
+  const colors: Record<string, string> = { INFO: 'bg-blue-100', WARNING: 'bg-yellow-100', ERROR: 'bg-red-100', CRITICAL: 'bg-red-200' };
   return colors[severity] || 'bg-gray-100';
 }
