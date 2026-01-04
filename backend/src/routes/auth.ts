@@ -8,7 +8,7 @@ import { authenticate, AuthRequest } from '../middleware/auth';
 const router = Router();
 
 const loginSchema = z.object({
-  email: z.string().email(),
+  email: z.string().min(1, "Email is required"),
   password: z.string().min(1),
 });
 
@@ -20,7 +20,6 @@ const registerSchema = z.object({
 
 const generateToken = (userId: string): string => {
   const secret: string = process.env.JWT_SECRET || 'fallback-secret-change-me';
-  const expiresIn: string = process.env.JWT_EXPIRES_IN || '7d';
   return jwt.sign({ userId }, secret, { expiresIn: '7d' } as jwt.SignOptions);
 };
 
