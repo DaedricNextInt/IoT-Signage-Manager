@@ -4,21 +4,17 @@ import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import dotenv from 'dotenv';
 
-// Load environment variables
 dotenv.config();
 
-// Import routes
 import authRoutes from './routes/auth';
 import deviceRoutes from './routes/devices';
 import alertRoutes from './routes/alerts';
 import groupRoutes from './routes/groups';
 
-// Import services
 import { initializeMqtt } from './services/mqtt';
 import { initializeWebSocket } from './services/websocket';
 import { startDeviceMonitor } from './services/deviceMonitor';
 
-// Import middleware
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
 
@@ -32,10 +28,8 @@ const io = new SocketIOServer(httpServer, {
   path: '/ws',
 });
 
-// Store io instance for use in routes
 app.set('io', io);
 
-// Middleware
 app.use(cors({
   origin: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:5173'],
   credentials: true,
@@ -43,7 +37,6 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(requestLogger);
 
-// Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
@@ -52,31 +45,25 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
-// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/devices', deviceRoutes);
 app.use('/api/alerts', alertRoutes);
 app.use('/api/groups', groupRoutes);
 
-// Metrics endpoint (for Prometheus)
 app.get('/api/metrics', async (req, res) => {
   res.set('Content-Type', 'text/plain');
-  res.send('# IoT Manager Metrics\n# TODO: Add prometheus metrics');
+  res.send('# IoT Manager Metrics\n');
 });
 
-// Error handler (must be last)
 app.use(errorHandler);
 
-// Start server
 const PORT = process.env.PORT || 4000;
 
 async function start() {
   try {
-    // Initialize WebSocket
     initializeWebSocket(io);
     console.log('✅ WebSocket initialized');
 
-    // Initialize MQTT (optional - won't crash if broker not available)
     try {
       await initializeMqtt(io);
       console.log('✅ MQTT connected');
@@ -84,19 +71,17 @@ async function start() {
       console.log('⚠️  MQTT not available (optional):', (err as Error).message);
     }
 
-    // Start device status monitor
     startDeviceMonitor(io);
     console.log('✅ Device monitor started');
 
-    // Start HTTP server
     httpServer.listen(PORT, () => {
       console.log(`
 ╔═══════════════════════════════════════════════════════════╗
 ║         IoT Device Manager Backend Started                ║
 ╠═══════════════════════════════════════════════════════════╣
-║  API Server:    http://localhost:${PORT}                     ║
-║  Health Check:  http://localhost:${PORT}/health              ║
-║  WebSocket:     ws://localhost:${PORT}/ws                    ║
+║  API Server:    http://localhost:\${PORT}                     ║
+║  Health Check:  http://localhost:\${PORT}/health              ║
+║  WebSocket:     ws://localhost:\${PORT}/ws                    ║
 ╚═══════════════════════════════════════════════════════════╝
       `);
     });
@@ -108,7 +93,6 @@ async function start() {
 
 start();
 
-// Graceful shutdown
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, shutting down...');
   httpServer.close(() => {

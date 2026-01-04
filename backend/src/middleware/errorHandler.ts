@@ -20,7 +20,6 @@ export const errorHandler = (
 ) => {
   console.error('Error:', err);
 
-  // Zod validation errors
   if (err instanceof ZodError) {
     return res.status(400).json({
       error: 'Validation error',
@@ -31,7 +30,6 @@ export const errorHandler = (
     });
   }
 
-  // Prisma errors
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     if (err.code === 'P2002') {
       return res.status(409).json({
@@ -45,14 +43,12 @@ export const errorHandler = (
     }
   }
 
-  // Custom app errors
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
       error: err.message,
     });
   }
 
-  // Default error
   res.status(500).json({
     error: process.env.NODE_ENV === 'production' 
       ? 'Internal server error' 

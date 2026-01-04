@@ -8,7 +8,6 @@ const client = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Request interceptor - add auth token
 client.interceptors.request.use((config) => {
   const token = useAuthStore.getState().token;
   if (token) {
@@ -17,7 +16,6 @@ client.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor - handle 401
 client.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -30,7 +28,6 @@ client.interceptors.response.use(
 );
 
 export const api = {
-  // Auth
   login: async (email: string, password: string): Promise<LoginResponse> => {
     const { data } = await client.post('/auth/login', { email, password });
     return data;
@@ -41,7 +38,6 @@ export const api = {
     return data;
   },
 
-  // Devices
   getDevices: async (params?: { status?: string; search?: string }): Promise<Device[]> => {
     const { data } = await client.get('/devices', { params });
     return data;
@@ -93,13 +89,11 @@ export const api = {
     await client.post('/devices/bulk/reboot', { deviceIds });
   },
 
-  // Groups
   getGroups: async (): Promise<DeviceGroup[]> => {
     const { data } = await client.get('/groups');
     return data;
   },
 
-  // Alerts
   getAlerts: async (params?: { acknowledged?: boolean; severity?: string }): Promise<Alert[]> => {
     const { data } = await client.get('/alerts', { params });
     return data;
