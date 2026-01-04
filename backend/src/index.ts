@@ -10,6 +10,7 @@ import authRoutes from './routes/auth';
 import deviceRoutes from './routes/devices';
 import alertRoutes from './routes/alerts';
 import groupRoutes from './routes/groups';
+import discoveryRoutes from './routes/discovery';
 
 import { initializeMqtt } from './services/mqtt';
 import { initializeWebSocket } from './services/websocket';
@@ -49,6 +50,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/devices', deviceRoutes);
 app.use('/api/alerts', alertRoutes);
 app.use('/api/groups', groupRoutes);
+app.use('/api/discover', discoveryRoutes);
 
 app.get('/api/metrics', async (req, res) => {
   res.set('Content-Type', 'text/plain');
@@ -75,7 +77,7 @@ async function start() {
     console.log('✅ Device monitor started');
 
     httpServer.listen(PORT, () => {
-      console.log(`
+      console.log(\`
 ╔═══════════════════════════════════════════════════════════╗
 ║         IoT Device Manager Backend Started                ║
 ╠═══════════════════════════════════════════════════════════╣
@@ -83,7 +85,7 @@ async function start() {
 ║  Health Check:  http://localhost:\${PORT}/health              ║
 ║  WebSocket:     ws://localhost:\${PORT}/ws                    ║
 ╚═══════════════════════════════════════════════════════════╝
-      `);
+      \`);
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);

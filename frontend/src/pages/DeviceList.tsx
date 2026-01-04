@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Plus, Search, RefreshCw, RotateCcw, Grid, List, Wifi, WifiOff } from 'lucide-react';
+import { Plus, Search, RefreshCw, RotateCcw, Grid, List, Wifi, WifiOff, Radar } from 'lucide-react';
 import { api } from '@/services/api';
 import { formatRelativeTime, cn, getStatusColor, getStatusBgColor } from '@/utils';
-// import type { Device } from '@/types';
 
 export const DeviceList: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -41,7 +40,10 @@ export const DeviceList: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div><h1 className="text-2xl font-bold text-gray-900">Devices</h1><p className="text-gray-500">{devices.length} devices registered</p></div>
-        <button className="btn-primary"><Plus className="w-4 h-4 mr-2" />Add Device</button>
+        <div className="flex gap-2">
+          <Link to="/devices/discover" className="btn btn-secondary"><Radar className="w-4 h-4 mr-2" />Discover</Link>
+          <button className="btn-primary"><Plus className="w-4 h-4 mr-2" />Add Device</button>
+        </div>
       </div>
       <div className="card p-4">
         <div className="flex flex-col lg:flex-row gap-4">

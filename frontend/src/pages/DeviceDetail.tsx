@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, RotateCcw, Cpu, Activity, Terminal, Send } from 'lucide-react';
+import { ArrowLeft, RotateCcw, Camera, Cpu, MapPin, Clock, Activity, Terminal, Send } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { api } from '@/services/api';
 import { formatRelativeTime, formatDateTime, cn, getStatusColor, getStatusBgColor } from '@/utils';

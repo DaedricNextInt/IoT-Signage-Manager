@@ -19,8 +19,9 @@ const registerSchema = z.object({
 });
 
 const generateToken = (userId: string): string => {
-  const secret: string = process.env.JWT_SECRET || 'fallback-secret-change-me';
-  return jwt.sign({ userId }, secret, { expiresIn: '7d' } as jwt.SignOptions);
+  const secret = process.env.JWT_SECRET || 'fallback-secret-change-me';
+  const expiresIn = process.env.JWT_EXPIRES_IN || '7d';
+  return jwt.sign({ userId }, secret, { expiresIn });
 };
 
 router.post('/login', async (req, res, next) => {

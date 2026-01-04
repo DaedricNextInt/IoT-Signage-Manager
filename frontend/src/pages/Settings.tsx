@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Key, Database, Save } from 'lucide-react';
+import { User, Key, Bell, Database, Save } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 
 export const Settings: React.FC = () => {

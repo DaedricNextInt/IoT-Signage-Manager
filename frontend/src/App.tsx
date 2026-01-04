@@ -7,6 +7,7 @@ import { Login } from '@/pages/Login';
 import { Dashboard } from '@/pages/Dashboard';
 import { DeviceList } from '@/pages/DeviceList';
 import { DeviceDetail } from '@/pages/DeviceDetail';
+import { DiscoverDevices } from '@/pages/DiscoverDevices';
 import { Alerts } from '@/pages/Alerts';
 import { Settings } from '@/pages/Settings';
 
@@ -36,6 +37,7 @@ function App() {
           <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
           <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/devices" element={<ProtectedRoute><DeviceList /></ProtectedRoute>} />
+          <Route path="/devices/discover" element={<ProtectedRoute><DiscoverDevices /></ProtectedRoute>} />
           <Route path="/devices/:id" element={<ProtectedRoute><DeviceDetail /></ProtectedRoute>} />
           <Route path="/alerts" element={<ProtectedRoute><Alerts /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
